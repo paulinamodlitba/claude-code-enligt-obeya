@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude Code enligt Obeya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;800;900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: affischaktig, monokrom, raka kanter, mycket luft. Stora versaler mot lugn brödtext.
+   Plakat Grotesk / Punta / Clarkson är licensierade typsnitt och kan inte laddas från webben här.
+   De ligger först i stacken, Archivo och Instrument Sans står för dem tills de bäddas in. */
+:root {
+  --bg: #F7F6F2;
+  --fg: #000000;
+  --muted: #55554F;
+  --panel: #E7E7E7;
+  --card: #FFFFFF;
+  --line: #000000;
+  --inv-bg: #000000;
+  --inv-fg: #F7F6F2;
+  --font-display: "Plakat Grotesk", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Punta", "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-nav: "Clarkson", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C0C0B; --fg: #F7F6F2; --muted: #A5A59E; --panel: #1C1C1A; --card: #141413;
+    --line: #F7F6F2; --inv-bg: #F7F6F2; --inv-fg: #000000; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C0C0B; --fg: #F7F6F2; --muted: #A5A59E; --panel: #1C1C1A; --card: #141413;
+  --line: #F7F6F2; --inv-bg: #F7F6F2; --inv-fg: #000000; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 18px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.92; text-wrap: balance; margin: 0; }
+p { margin: 0; max-width: 62ch; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+
+/* Navigation */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.nav .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 14px; }
+.brand { font-family: var(--font-nav); font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; font-size: 14px; }
+.nav ul { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+.nav a { font-family: var(--font-nav); font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; font-size: 12px; text-decoration: none; }
+.nav a:hover { text-decoration: underline; text-underline-offset: 5px; }
+
+/* Hero */
+.hero { padding-block: clamp(56px, 10vw, 128px) clamp(48px, 7vw, 88px); }
+.eyebrow { font-family: var(--font-nav); font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+.hero h1 { font-size: clamp(52px, 12.5vw, 176px); }
+.hero .lede { margin-top: 40px; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.35; max-width: 34ch; }
+.hero .lede b { font-weight: 600; }
+
+/* Sektioner */
+section { border-top: 1px solid var(--line); padding-block: clamp(56px, 8vw, 112px); }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 32px 48px; margin-bottom: clamp(36px, 5vw, 64px); }
+.sec-head h2 { font-size: clamp(36px, 6vw, 84px); }
+.sec-head p { font-size: 20px; align-self: end; }
+.label { font-family: var(--font-nav); font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--muted); }
+
+/* Steg: en verklig sekvens */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.step { padding: 24px 24px 32px 0; display: flex; flex-direction: column; gap: 14px; }
+.step + .step { padding-left: 24px; border-left: 1px solid var(--line); }
+.step h3 { font-size: clamp(26px, 3vw, 38px); }
+.step p { font-size: 16px; color: var(--muted); }
+.step .label { color: var(--fg); }
+
+/* Förmågor */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; background: var(--line); border: 1px solid var(--line); }
+.cell { background: var(--bg); padding: 32px; display: flex; flex-direction: column; gap: 14px; }
+.cell h3 { font-size: clamp(28px, 3.4vw, 44px); }
+.cell p { font-size: 17px; }
+.cell.alt { background: var(--panel); }
+
+/* Terminal / CLAUDE.md */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 32px 56px; align-items: start; }
+.term { background: var(--inv-bg); color: var(--inv-fg); font-family: var(--font-mono); font-size: 14px; line-height: 1.7; overflow-x: auto; }
+.term .bar { padding: 10px 18px; border-bottom: 1px solid color-mix(in srgb, var(--inv-fg) 25%, transparent); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; display: flex; justify-content: space-between; gap: 12px; }
+.term pre { margin: 0; padding: 20px 18px 24px; white-space: pre; font: inherit; }
+.term .dim { opacity: 0.55; }
+.term .em { font-weight: 500; }
+
+/* Kontroll */
+.modes { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.modes li { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 8px 32px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.modes strong { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; font-size: 20px; }
+.modes span { color: var(--muted); }
+
+/* Verktygslåda */
+.tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.tool { border-top: 3px solid var(--fg); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.tool h3 { font-size: 24px; }
+.tool p { font-size: 15.5px; color: var(--muted); }
+
+/* Var */
+.where { display: flex; flex-wrap: wrap; gap: 12px; }
+.pill { border: 1px solid var(--line); padding: 12px 20px; font-family: var(--font-nav); text-transform: uppercase; letter-spacing: 0.1em; font-size: 13px; font-weight: 500; background: var(--card); }
+
+/* Ärligt talat */
+.vs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); }
+.vs > div { padding: 32px; display: flex; flex-direction: column; gap: 14px; }
+.vs > div + div { border-left: 1px solid var(--line); background: var(--inv-bg); color: var(--inv-fg); }
+.vs ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.vs li { padding-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent); }
+.vs li:last-child { border-bottom: 0; }
+
+/* Slut */
+.outro { background: var(--inv-bg); color: var(--inv-fg); border-top: 0; }
+.outro h2 { font-size: clamp(44px, 9vw, 128px); }
+.outro p { margin-top: 32px; font-size: 20px; }
+.outro-band { margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding-inline: max(16px, env(safe-area-inset-left, 0px)); }
+.outro .code { margin-top: 36px; display: inline-block; font-family: var(--font-mono); font-size: 16px; border: 1px solid var(--inv-fg); padding: 14px 20px; }
+footer { padding-block: 28px; font-family: var(--font-nav); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .sec-head, .two { grid-template-columns: minmax(0, 1fr); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .step:nth-child(3) { padding-left: 0; border-left: 0; }
+  .step:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nav ul { display: none; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .steps, .grid, .tools, .vs { grid-template-columns: minmax(0, 1fr); }
+  .step, .step + .step { padding: 24px 0; border-left: 0; }
+  .step + .step { border-top: 1px solid var(--line); }
+  .vs > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .modes li { grid-template-columns: minmax(0, 1fr); }
+  .cell, .vs > div { padding: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <span class="brand">Obeya</span>
+    <ul>
+      <li><a href="#sa-funkar-det">Så funkar det</a></li>
+      <li><a href="#minnet">Minnet</a></li>
+      <li><a href="#kontroll">Kontroll</a></li>
+      <li><a href="#verktyg">Verktyg</a></li>
+    </ul>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <p class="eyebrow">Guide · Claude Code</p>
+    <h1>Claude Code.<br>Gör jobbet, inte bara snacket.</h1>
+    <p class="lede"><b>Claude Code är en AI-kollega som läser dina filer, skriver, kör och rättar.</b> Du ger uppdraget. Den gör det. Du säger ja eller nej.</p>
+  </div>
+
+  <section id="sa-funkar-det">
+    <div class="sec-head">
+      <h2>Så funkar det</h2>
+      <p>Ingen magi. Samma rytm som när du lämnar ett uppdrag till en bra kollega. Skillnaden är att den här aldrig går på lunch.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="label">Steg 1</span><h3>Du ber</h3><p>Skriv vad du vill ha, som du skulle säga det till en människa. “Gör en sida om vår nya byrå.” Klart.</p></div>
+      <div class="step"><span class="label">Steg 2</span><h3>Den läser</h3><p>Claude tittar i mappen, hittar dina riktlinjer och förstår sammanhanget innan den skriver en rad.</p></div>
+      <div class="step"><span class="label">Steg 3</span><h3>Den gör</h3><p>Filer skapas och ändras, kommandon körs, fel hittas och rättas. Du ser allt som händer.</p></div>
+      <div class="step"><span class="label">Steg 4</span><h3>Du godkänner</h3><p>Inget stort sker utan att du får frågan. Säg ja, nej eller “gör om, kortare”.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Vad det kan</h2>
+      <p>Det började som ett verktyg för kod. Det har blivit något bredare: allt som går att göra med filer, text och system.</p>
+    </div>
+    <div class="grid">
+      <div class="cell"><span class="label">Läsa</span><h3>Förstå hela mappen</h3><p>Dokument, kalkylark, kod, anteckningar. Claude söker, läser och sammanfattar utan att du pekar ut var.</p></div>
+      <div class="cell alt"><span class="label">Skriva</span><h3>Utkast som låter som oss</h3><p>Mejl, inlägg, offerter, hemsidor. Med rätt riktlinjer i bakgrunden blir första utkastet redan nära.</p></div>
+      <div class="cell alt"><span class="label">Köra</span><h3>Utföra, inte bara föreslå</h3><p>Starta, testa, bygga om. Går något fel läser Claude felet och försöker igen.</p></div>
+      <div class="cell"><span class="label">Koppla</span><h3>Prata med dina verktyg</h3><p>Kalender, mejl, Slack, Notion, Drive. Via kopplingar kan Claude hämta det den behöver där det redan finns.</p></div>
+    </div>
+  </section>
+
+  <section id="minnet">
+    <div class="two">
+      <div>
+        <p class="label" style="margin-bottom:20px">Minnet</p>
+        <h2 style="font-size:clamp(36px,6vw,84px)">En fil som<br>ändrar allt</h2>
+        <p style="margin-top:32px;font-size:20px">Claude minns inte förra veckan. Därför finns <b style="font-weight:600">CLAUDE.md</b>: en vanlig textfil i mappen som Claude läser varje gång.</p>
+        <p style="margin-top:20px">Skriv in vilka vi är, hur vi låter och vad som aldrig får skickas utan ditt ja. Sedan slipper du förklara det igen.</p>
+        <p style="margin-top:20px;color:var(--muted)">Den här sidan är byggd så. Färgerna, tonen och reglerna kommer ur Obeyas egen fil.</p>
+      </div>
+      <div class="term" role="img" aria-label="Utdrag ur en CLAUDE.md-fil">
+        <div class="bar"><span>CLAUDE.md</span><span>Obeya</span></div>
+<pre><span class="em"># Så ska du jobba med mig</span>
+
+- Var rak. Ge din bedömning,
+  inte bara alternativ.
+- Var kort. Börja med slutsatsen.
+- Fråga när du är osäker på
+  siffror, namn och löften.
+- Inget skickas eller publiceras
+  utan mitt godkännande.
+- Tänk inkluderande i alla ordval.
+
+<span class="em"># Färger</span>
+Bakgrund <span class="dim">#F7F6F2</span>  Text <span class="dim">#000000</span>
+Inga accentfärger.</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontroll">
+    <div class="sec-head">
+      <h2>Du har kontrollen</h2>
+      <p>Tydlighet först. Du bestämmer hur mycket frihet Claude får, och du kan ändra det när som helst.</p>
+    </div>
+    <ul class="modes">
+      <li><strong>Fråga först</strong><span>Standard. Claude ber om lov innan den ändrar filer eller kör kommandon.</span></li>
+      <li><strong>Godkänn redigeringar</strong><span>Filändringar går igenom direkt. Allt annat får fortfarande en fråga.</span></li>
+      <li><strong>Planläge</strong><span>Claude utreder och föreslår en plan, men rör ingenting. Bra för stora uppdrag.</span></li>
+      <li><strong>Egna regler</strong><span>Tillåt det du litar på, till exempel läsa mappen. Blockera resten, till exempel skicka mejl.</span></li>
+    </ul>
+  </section>
+
+  <section id="verktyg">
+    <div class="sec-head">
+      <h2>Verktygslådan</h2>
+      <p>Grunden räcker långt. Vill du ha mer finns det fyra sätt att bygga ut den.</p>
+    </div>
+    <div class="tools">
+      <div class="tool"><h3>Skills</h3><p>Färdiga arbetssätt. En skill för kundmejl svarar alltid i samma mönster och ton.</p></div>
+      <div class="tool"><h3>Agenter</h3><p>Specialister som tar en uppgift var, till exempel en som bygger pitchen medan du gör något annat.</p></div>
+      <div class="tool"><h3>Kopplingar</h3><p>MCP-servrar som öppnar dörren till kalender, mejl, Slack och dokument.</p></div>
+      <div class="tool"><h3>Hooks</h3><p>Automatiska regler som körs varje gång något händer. Claude kan inte glömma dem.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Var du hittar det</h2>
+      <p>Samma Claude, flera ingångar. Välj där du redan sitter.</p>
+    </div>
+    <div class="where">
+      <span class="pill">Terminalen</span>
+      <span class="pill">Claude-appen (Mac och Windows)</span>
+      <span class="pill">VS Code och JetBrains</span>
+      <span class="pill">Webben, claude.ai/code</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Ärligt talat</h2>
+      <p>Ingen ska sälja in det här som mirakel. Så här ser vi på det.</p>
+    </div>
+    <div class="vs">
+      <div>
+        <span class="label">Det är inte</span>
+        <ul>
+          <li>En ersättare för omdöme</li>
+          <li>Något som ska skicka åt dig utan frågan</li>
+          <li>Ett facit. Siffror och löften till kunder kollar du alltid</li>
+        </ul>
+      </div>
+      <div>
+        <span class="label" style="color:inherit;opacity:.7">Det är</span>
+        <ul>
+          <li>En snabb första version, varje gång</li>
+          <li>En kollega som läser det du aldrig hinner läsa</li>
+          <li>Mer tid till det som kräver människor</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="outro-band outro">
+  <div class="wrap" style="padding-block:clamp(64px,10vw,140px)">
+    <h2>Testa med<br>ett litet problem.</h2>
+    <p>Vi älskar problem. Välj ett som irriterar dig i veckan och be Claude lösa det. Du ser snabbt om det är något för er.</p>
+    <span class="code">&gt; Sammanfatta rapporten och ge mig tre obekväma frågor.</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <footer><span>Obeya · Stockholm och Köpenhamn</span><span>Don't be an asshole · Have fun : )</span></footer>
+</div>
+
+</body>
+</html>
